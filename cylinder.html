@@ -1,0 +1,92 @@
+<!doctype html>
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset='utf-8'>
+	<title>cylinder</title>
+	<style type="text/css">
+		* {
+			box-sizing: border-box;
+		}
+		body {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			perspective: 800px;
+		}
+		.container {
+			position: absolute;
+			top: calc(50% - 250px);
+			left: calc(50% - 250px);
+			width: 500px;
+			height: 500px;
+			perspective: 500px;
+			border: 1px green solid;
+		}
+		.surface {
+			position: absolute;
+			border-radius: 50%;
+			background-color: rgba(0,0,0,0.5);
+		}
+		.facet {
+			position: absolute;
+			height: 50px;
+			background-color: rgba(0,150,0,1);
+			transform-origin: top center;
+		}
+	</style>
+</head>
+<body>
+	<div class='container'></div>
+	<script type="text/javascript">
+		var height = 100,
+			radius = 80,
+			interval = 1,
+			numFacets = parseInt(radius / interval),
+			facetWidth = 2 * Math.PI * radius / numFacets,
+			angleInterval = 2 * Math.PI / numFacets;
+
+		for (var i = 0; i < numFacets; i++) {
+			var angle = angleInterval * i,
+				x = radius * Math.sin(angle),
+				y = radius * Math.cos(angle),
+				facet = document.createElement('div');
+			facet.className = 'facet';
+			facet.style.width = facetWidth + 1 + 'px';
+			facet.style.height = height + 'px';
+			facet.style.top = '50%';
+			facet.style.left = 'calc(50% - ' + (facetWidth / 2) + 'px)';
+			facet.style.transform = 'translateX(' + x + 'px) translateY(' + y + 'px) rotateX(90deg) rotateY(' + (Math.PI - angle) + 'rad)';
+			document.querySelector('.container').appendChild(facet);
+		};
+
+		var surface = document.createElement('div')
+		surface.className = 'surface';
+		surface.style.top = 'calc(50% - ' + radius + 'px)';
+		surface.style.left = 'calc(50% - ' + radius + 'px)';
+		surface.style.width = radius * 2 + 'px';
+		surface.style.height = radius * 2 + 'px';
+		surface.style.transform = 'translateZ(' + height + 'px)';
+		document.querySelector('.container').appendChild(surface);
+
+		function perspectiveChange (e) {
+			var perX = e.pageX / window.innerWidth * 100,
+				perY = e.pageY / window.innerHeight * 100;
+			document.querySelector('.container').style.perspectiveOrigin = perX + '% ' + perY + '%';
+		}
+		function containerRotate (e) {
+			var centerX = window.innerWidth / 2,
+				centerY = window.innerHeight / 2,
+				perX = (e.pageX - centerX) / window.innerWidth,
+				perY = (e.pageY - centerY) / window.innerHeight,
+				angleX = 90 * perY,
+				angleY = -90 * perX;
+			document.querySelector('.container').style.transform = 'rotateX(' + angleX + 'deg) rotateY(' + angleY + 'deg)';
+		}
+		window.addEventListener('mousemove', containerRotate);
+		window.addEventListener('mousemove', perspectiveChange);
+	</script>
+</body>
+</html>
