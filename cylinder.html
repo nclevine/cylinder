@@ -26,14 +26,32 @@
 			/*left: calc(50% - 250px);*/
 			/*width: 500px;*/
 			/*height: 500px;*/
-			/*border: 1px green solid;*/
+			border: 10px solid rgba(0,150,0,0.5);
+			border-radius: 50%;
 			transform-style: preserve-3d;
 			/*perspective: 500px;*/
 		}
-		.surface {
+		.container::after {
+			/*display: none;*/
+			content: '';
 			position: absolute;
+			top: -10px;
+			left: -10px;
+			width: 100%;
+			height: 100%;
+			border: 10px solid rgba(0,150,0,0.5);
 			border-radius: 50%;
-			background-color: rgba(0,0,0,0.5);
+			transform: translateZ(20px);
+		}
+		.surface {
+			display: none;
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			border: 10px solid rgba(0,150,0,0.5);
+			border-radius: 50%;
 		}
 		.face {
 			position: absolute;
@@ -48,10 +66,14 @@
 	<script type="text/javascript">
 		var height = 20,
 			radius = 80,
+			innerRadius = radius - 10,
 			interval = 1,
 			numFaces = parseInt(radius / interval),
+			numFacesInner = parseInt(innerRadius / interval),
 			faceWidth = 2 * Math.PI * radius / numFaces,
+			faceWidthInner = 2 * Math.PI * innerRadius / numFacesInner,
 			angleInterval = 2 * Math.PI / numFaces,
+			angleIntervalInner = 2 * Math.PI / numFacesInner,
 			numCylinders = parseInt(window.innerWidth / (radius * 1.5));
 			chainLength = numCylinders * radius * 1.5,
 			chain = document.querySelector('.chain');
@@ -67,7 +89,21 @@
 			container.style.top = 'calc(50% - ' + (radius / 2) + 'px)';
 			container.style.left = (radius * c * 1.5 - (radius/3)) + 'px';
 			container.style.transform = (c % 2 === 0) ? 'rotateX(-45deg)' : 'rotateX(45deg)';
+			// document.querySelector('.container::after').style.transform = 'translateZ(' + height + 'px)'
 			chain.appendChild(container);
+			
+			var surface1 = document.createElement('div')
+			surface1.className = 'surface';
+			var surface2 = surface1.cloneNode();
+			// surface.style.top = 'calc(50% - ' + radius + 'px)';
+			// surface.style.left = 'calc(50% - ' + radius + 'px)';
+			// surface.style.width = radius * 2 + 'px';
+			// surface.style.height = radius * 2 + 'px';
+			surface1.style.transform = 'translateZ(' + height + 'px)';
+			surface2.style.transform = 'translateZ(-' + height + 'px)';
+			container.appendChild(surface1);
+			container.appendChild(surface2);
+			// document.querySelector('.container').appendChild(surface);
 			
 			for (var i = 0; i < numFaces; i++) {
 				var angle = angleInterval * i,
@@ -83,16 +119,23 @@
 				container.appendChild(face);
 				// document.querySelector('.container').appendChild(face);
 			};
+
+			for (var i = 0; i < numFacesInner; i++) {
+				var angle = angleIntervalInner * i,
+					x = innerRadius * Math.sin(angle),
+					y = innerRadius * Math.cos(angle),
+					face = document.createElement('div');
+				face.className = 'face';
+				face.style.width = faceWidthInner + 1 + 'px';
+				face.style.height = height + 'px';
+				face.style.top = '50%';
+				face.style.left = 'calc(50% - ' + (faceWidthInner / 2) + 'px)';
+				face.style.transform = 'translateX(' + x + 'px) translateY(' + y + 'px) rotateX(90deg) rotateY(' + (Math.PI - angle) + 'rad)';
+				container.appendChild(face);
+				// document.querySelector('.container').appendChild(face);
+			};
 		};
 
-		var surface = document.createElement('div')
-		surface.className = 'surface';
-		surface.style.top = 'calc(50% - ' + radius + 'px)';
-		surface.style.left = 'calc(50% - ' + radius + 'px)';
-		surface.style.width = radius * 2 + 'px';
-		surface.style.height = radius * 2 + 'px';
-		surface.style.transform = 'translateZ(' + height + 'px)';
-		// document.querySelector('.container').appendChild(surface);
 
 		function perspectiveChange (e) {
 			var perX = e.pageX / window.innerWidth * 100,
